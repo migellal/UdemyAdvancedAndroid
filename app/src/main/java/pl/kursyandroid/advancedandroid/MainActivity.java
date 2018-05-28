@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -51,6 +54,32 @@ public class MainActivity extends AppCompatActivity {
 
         transformingOperators();
         filteringOperators();
+        combiningOperators();
+    }
+
+    private void combiningOperators() {
+        Observable<Integer> observable = Observable.range(1, 10);
+        Observable<Integer> observable2 = Observable.range(31, 10);
+
+        Observable.merge(observable, observable2).subscribe(
+                x -> Log.d(TAG, "" + x)
+        );
+
+        List<Observable<Integer>> list = new ArrayList<>();
+        list.add(observable);
+        list.add(observable2);
+        Observable<Integer> obs = Observable.zip(list, t -> {
+            Integer result = 0;
+            for (Object o : t) {
+                result += (Integer) o;
+            }
+            return result;
+        });
+        obs.subscribe(r -> Log.d(TAG, "merge: " + r));
+
+        observable.startWith(-1).subscribe(
+                r -> Log.d(TAG, "" + r)
+        );
     }
 
     private void filteringOperators() {
