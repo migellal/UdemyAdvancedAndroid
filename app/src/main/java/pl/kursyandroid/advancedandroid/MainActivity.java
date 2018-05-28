@@ -7,6 +7,7 @@ import android.util.Log;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.GroupedObservable;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -47,5 +48,36 @@ public class MainActivity extends AppCompatActivity {
                 () -> Log.d(TAG, "complete"),
                 d -> Log.d(TAG, "subscribe")
         );
+
+        transformingOperators();
+    }
+
+    private void transformingOperators() {
+        String even = "even";
+        Observable<Integer> observable = Observable.range(1, 10);
+
+        Observable<Integer> values = observable.map(x -> (x * 5) - 4);
+        values.subscribe(
+                v -> Log.d(TAG, String.valueOf(v)));
+
+        Observable<GroupedObservable<String, Integer>> groupedObservable = observable.groupBy(t -> {
+                    if (t % 2 == 0) {
+                        return even;
+                    } else {
+                        return "odd";
+                    }
+                }
+        );
+        groupedObservable.subscribe( s -> {
+            Log.d(TAG, "key: " + s.getKey());
+            if(even.equals(s.getKey())) {
+                s.subscribe( g -> {
+                   Log.d(TAG, "item: " + g);
+                });
+            }
+        });
+
+        observable.buffer(2).subscribe(
+                val -> Log.d(TAG, val.toString()));
     }
 }
