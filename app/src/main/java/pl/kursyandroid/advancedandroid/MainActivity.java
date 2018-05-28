@@ -40,5 +40,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "complete");
                     }
                 });
+
+        Observable.just("a", "b", "c", "d", "e").subscribe(
+                val -> Log.d(TAG, val),
+                error -> Log.e(TAG, error.getMessage()),
+                () -> Log.d(TAG, "complete"),
+                d -> Log.d(TAG, "subscribe")
+        );
     }
 }
