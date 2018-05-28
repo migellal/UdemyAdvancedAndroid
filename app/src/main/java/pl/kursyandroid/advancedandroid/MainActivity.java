@@ -50,6 +50,21 @@ public class MainActivity extends AppCompatActivity {
         );
 
         transformingOperators();
+        filteringOperators();
+    }
+
+    private void filteringOperators() {
+        Observable.just(1, 2, 3).first(0).subscribe(
+                v -> Log.d(TAG, "" + v)
+        );
+
+        Observable<Integer> observable = Observable.range(1, 10);
+        observable.filter(x -> x > 5).subscribe(
+                x -> Log.d(TAG, "" + x)
+        );
+
+        Observable.just(1, 1, 1, 2, 2, 2, 2, 3, 3).distinct().subscribe(
+                x -> Log.d(TAG, "" + x));
     }
 
     private void transformingOperators() {
@@ -68,11 +83,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-        groupedObservable.subscribe( s -> {
+        groupedObservable.subscribe(s -> {
             Log.d(TAG, "key: " + s.getKey());
-            if(even.equals(s.getKey())) {
-                s.subscribe( g -> {
-                   Log.d(TAG, "item: " + g);
+            if (even.equals(s.getKey())) {
+                s.subscribe(g -> {
+                    Log.d(TAG, "item: " + g);
                 });
             }
         });
