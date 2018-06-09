@@ -9,19 +9,39 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observables.GroupedObservable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "REACTIVE_JUST";
+    private static final String TAG = "REACTIVE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        simpleReactive();
+        transformingOperators();
+        filteringOperators();
+        combiningOperators();
 
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+
+        Observable.fromIterable(list)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> Log.d(TAG, x)
+                );
+    }
+
+    private void simpleReactive() {
         Observable.just("a", "b", "c", "d", "e")
                 .subscribe(new Observer<String>() {
                     @Override
@@ -51,10 +71,6 @@ public class MainActivity extends AppCompatActivity {
                 () -> Log.d(TAG, "complete"),
                 d -> Log.d(TAG, "subscribe")
         );
-
-        transformingOperators();
-        filteringOperators();
-        combiningOperators();
     }
 
     private void combiningOperators() {
