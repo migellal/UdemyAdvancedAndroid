@@ -50,7 +50,23 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         tvChangeEvent ->
-                                info1.setText(tvChangeEvent.view().getText())
+                                info1.setText("1= " + tvChangeEvent.view().getText())
+                );
+
+        RxTextView.afterTextChangeEvents(sourceText)
+                .delay(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        tvChangeEvent ->
+                                info2.setText("2= " + tvChangeEvent.view().getText())
+                );
+
+        RxTextView.afterTextChangeEvents(sourceText)
+                .filter(v -> v.view().getText().length() % 10 == 0)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        tvChangeEvent ->
+                                info3.setText("3= " + tvChangeEvent.view().getText())
                 );
     }
 
