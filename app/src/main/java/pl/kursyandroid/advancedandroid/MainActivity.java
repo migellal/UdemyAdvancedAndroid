@@ -3,10 +3,17 @@ package pl.kursyandroid.advancedandroid;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -18,16 +25,36 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "REACTIVE";
+    @BindView(R.id.sourceEditText)
+    EditText sourceText;
+    @BindView(R.id.infoTextView1)
+    TextView info1;
+    @BindView(R.id.infoTextView2)
+    TextView info2;
+    @BindView(R.id.infoTextView3)
+    TextView info3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         simpleReactive();
         transformingOperators();
         filteringOperators();
         combiningOperators();
+        advancedReactive();
 
+        RxTextView.afterTextChangeEvents(sourceText)
+                .debounce(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        tvChangeEvent ->
+                                info1.setText(tvChangeEvent.view().getText())
+                );
+    }
+
+    private void advancedReactive() {
         List<String> list = new ArrayList<>();
         list.add("a");
         list.add("b");
