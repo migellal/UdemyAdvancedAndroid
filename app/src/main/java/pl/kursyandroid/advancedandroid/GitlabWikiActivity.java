@@ -3,7 +3,14 @@ package pl.kursyandroid.advancedandroid;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -14,13 +21,17 @@ public class GitlabWikiActivity extends AppCompatActivity {
 
     private static final String TAG = "RX_RETROFIT";
     private int projectId = 4749359;
+    private GitlabWikiService gitlab;
+    @BindView(R.id.wikiPageList)
+    ListView wikiPageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gitlab_wiki);
-
+        ButterKnife.bind(this);
         initializeGitlabWikiService();
+        getAll();
     }
 
     private void initializeGitlabWikiService() {
@@ -30,15 +41,32 @@ public class GitlabWikiActivity extends AppCompatActivity {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
 
-        GitlabWikiService gitlab = retrofit.create(GitlabWikiService.class);
+        gitlab = retrofit.create(GitlabWikiService.class);
+    }
 
+    private void getAll() {
+        List<String> slugList = new ArrayList<>();
         gitlab.getAll(TopSecret.API_KEY, projectId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
-                v -> {
-                    Log.d(TAG, v.toString());
-                }
-        );
+                        val -> {
+                            for(Wiki v : val) {
+                                slugList.add(v.getSlug());
+                            }
+                        },
+                        error -> {
+                            Log.e(TAG, error.getMessage());
+                        },
+                        () -> {
+                            Log.d(TAG, "finish getAll");
+                            ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(),
+                                    android.R.layout.simple_list_item_1, slugList);
+                            wikiPageList.setAdapter(adapter);
+                        },
+                        d -> {
+                            Log.d(TAG, "subscribe getAll");
+                        }
+                );
     }
 }
