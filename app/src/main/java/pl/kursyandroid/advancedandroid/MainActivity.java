@@ -1,8 +1,10 @@
 package pl.kursyandroid.advancedandroid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     TextView info2;
     @BindView(R.id.infoTextView3)
     TextView info3;
+    @BindView(R.id.openGitlabWikiActivity)
+    Button openGitlabWiki;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
         filteringOperators();
         combiningOperators();
         advancedReactive();
+
+        openGitlabWiki.setOnClickListener(
+                v -> {
+                    Intent intent = new Intent(MainActivity.this, GitlabWikiActivity.class);
+                    startActivity(intent);
+                }
+        );
 
         RxTextView.afterTextChangeEvents(sourceText)
                 .debounce(1000, TimeUnit.MILLISECONDS)
