@@ -4,7 +4,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,17 @@ public class GitlabWikiActivity extends AppCompatActivity {
     private GitlabWikiService gitlab;
     @BindView(R.id.wikiPageList)
     ListView wikiPageList;
+    @BindView(R.id.slugGetB)
+    Button slugGetContent;
+    @BindView(R.id.slugGetET)
+    EditText slugGetName;
+    @BindView(R.id.wikiPageTitleGet)
+    TextView wikiPageTitle;
+    @BindView(R.id.wikiPageContentGet)
+    TextView wikiPageContent;
+    @BindView(R.id.wikiPageSlugGet)
+    TextView wikiPageSlug;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +47,25 @@ public class GitlabWikiActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initializeGitlabWikiService();
         getAll();
+
+        slugGetContent.setOnClickListener(
+                val -> {
+                    gitlab.getOne(TopSecret.API_KEY, projectId, slugGetName.getText().toString())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    v -> {
+                                        wikiPageTitle.setText(v.getTitle());
+                                        wikiPageContent.setText(v.getContent());
+                                        wikiPageSlug.setText(v.getSlug());
+                                    },
+                                    error -> {
+                                        Log.e(TAG, error.getMessage(), error);
+                                        Toast.makeText(this, "Prawdopodbnie błędna nazwa strony wiki: "+error.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                            );
+                }
+        );
     }
 
     private void initializeGitlabWikiService() {

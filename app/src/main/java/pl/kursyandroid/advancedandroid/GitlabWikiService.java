@@ -16,4 +16,7 @@ public interface GitlabWikiService {
     })
     @GET("{projectId}/wikis?with_content=1")
     Observable<List<Wiki>> getAll(@Header("PRIVATE-TOKEN") String token, @Path("projectId") int projectId);
+
+    @GET("{projectId}/wikis/{slug}")
+    Observable<Wiki> getOne(@Header("PRIVATE-TOKEN") String token, @Path("projectId") int projectId, @Path("slug") String slug);
 }
