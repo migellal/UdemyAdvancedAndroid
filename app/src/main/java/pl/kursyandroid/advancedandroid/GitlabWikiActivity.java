@@ -45,6 +45,10 @@ public class GitlabWikiActivity extends AppCompatActivity {
     EditText titleSlug;
     @BindView(R.id.contentPost)
     EditText content;
+    @BindView(R.id.deleteB)
+    Button delete;
+    @BindView(R.id.slugDelete)
+    EditText slugDelete;
 
 
     @Override
@@ -81,7 +85,7 @@ public class GitlabWikiActivity extends AppCompatActivity {
                     wiki.setTitle(slug);
                     wiki.setContent(content.getText().toString());
                     wiki.setSlug(slug);
-                    if(slugList.contains(slug)) {
+                    if (slugList.contains(slug)) {
                         gitlab.updatePage(TopSecret.API_KEY, projectId, slug, wiki)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribeOn(Schedulers.io())
@@ -114,6 +118,24 @@ public class GitlabWikiActivity extends AppCompatActivity {
                                         }
                                 );
                     }
+                }
+        );
+
+        delete.setOnClickListener(
+                val -> {
+                    gitlab.deletePage(TopSecret.API_KEY, projectId, slugDelete.getText().toString())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    v -> {
+                                        Log.d(TAG, "success: " + v.code());
+                                    },
+                                    error -> {
+                                        Log.e(TAG, error.getMessage(), error);
+                                        Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                    },
+                                    this::recreate
+                            );
                 }
         );
     }

@@ -3,7 +3,9 @@ package pl.kursyandroid.advancedandroid;
 import java.util.List;
 
 import io.reactivex.Observable;
+import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
@@ -28,4 +30,7 @@ public interface GitlabWikiService {
 
     @PUT("{projectId}/wikis/{slug}")
     Observable<Wiki> updatePage(@Header("PRIVATE-TOKEN") String token, @Path("projectId") int projectId, @Path("slug") String slug, @Body Wiki wiki);
+
+    @DELETE("{projectId}/wikis/{slug}")
+    Observable<Response<Void>> deletePage(@Header("PRIVATE-TOKEN") String token, @Path("projectId") int projectId, @Path("slug") String slug);
 }
