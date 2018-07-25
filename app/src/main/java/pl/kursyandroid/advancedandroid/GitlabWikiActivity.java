@@ -25,6 +25,7 @@ public class GitlabWikiActivity extends AppCompatActivity {
 
     private static final String TAG = "RX_RETROFIT";
     private int projectId = 4749359;
+    private List<String> slugList;
     private GitlabWikiService gitlab;
     @BindView(R.id.wikiPageList)
     ListView wikiPageList;
@@ -38,6 +39,12 @@ public class GitlabWikiActivity extends AppCompatActivity {
     TextView wikiPageContent;
     @BindView(R.id.wikiPageSlugGet)
     TextView wikiPageSlug;
+    @BindView(R.id.createOrUpdatePost)
+    Button createOrUpdate;
+    @BindView(R.id.titleSlugPost)
+    EditText titleSlug;
+    @BindView(R.id.contentPost)
+    EditText content;
 
 
     @Override
@@ -61,9 +68,52 @@ public class GitlabWikiActivity extends AppCompatActivity {
                                     },
                                     error -> {
                                         Log.e(TAG, error.getMessage(), error);
-                                        Toast.makeText(this, "Prawdopodbnie błędna nazwa strony wiki: "+error.getMessage(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(this, "Prawdopodbnie błędna nazwa strony wiki: " + error.getMessage(), Toast.LENGTH_LONG).show();
                                     }
                             );
+                }
+        );
+
+        createOrUpdate.setOnClickListener(
+                val -> {
+                    String slug = titleSlug.getText().toString();
+                    Wiki wiki = new Wiki();
+                    wiki.setTitle(slug);
+                    wiki.setContent(content.getText().toString());
+                    wiki.setSlug(slug);
+                    if(slugList.contains(slug)) {
+                        gitlab.updatePage(TopSecret.API_KEY, projectId, slug, wiki)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(
+                                        v -> {
+                                            Toast.makeText(this, "update: " + v.getSlug(), Toast.LENGTH_LONG).show();
+                                        },
+                                        error -> {
+                                            Log.e(TAG, error.getMessage(), error);
+                                            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                        },
+                                        () -> {
+                                            getAll();
+                                        }
+                                );
+                    } else {
+                        gitlab.createPage(TopSecret.API_KEY, projectId, wiki)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(
+                                        v -> {
+                                            Toast.makeText(this, "create: " + v.getSlug(), Toast.LENGTH_LONG).show();
+                                        },
+                                        error -> {
+                                            Log.e(TAG, error.getMessage(), error);
+                                            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                        },
+                                        () -> {
+                                            getAll();
+                                        }
+                                );
+                    }
                 }
         );
     }
@@ -79,13 +129,13 @@ public class GitlabWikiActivity extends AppCompatActivity {
     }
 
     private void getAll() {
-        List<String> slugList = new ArrayList<>();
+        slugList = new ArrayList<>();
         gitlab.getAll(TopSecret.API_KEY, projectId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         val -> {
-                            for(Wiki v : val) {
+                            for (Wiki v : val) {
                                 slugList.add(v.getSlug());
                             }
                         },
